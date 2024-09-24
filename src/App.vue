@@ -1,27 +1,37 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div id="app">
+    <header>
+      <h1>教育コンテンツ</h1>
+      <nav>
+        <router-link to="/">ホーム画面</router-link>
+      </nav>
+    </header>
+    <main>
+      <router-view />
+    </main>
+    <footer>
+      <p>© 2024 DXPRO SOLUTION 教育コンテンツ</p>
+    </footer>
+  </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component'
-import HelloWorld from './components/HelloWorld.vue'
-
-@Options({
-  components: {
-    HelloWorld
-  }
-})
-export default class App extends Vue {}
+export default {
+  name: 'App'
+}
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+<style scoped>
+header {
+  background-color: #4CAF50;
+  padding: 10px;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #f1f1f1;
+  margin-top: 20px;
 }
 </style>
