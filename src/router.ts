@@ -14,9 +14,10 @@ import CourseDetailServer from './views/CourseDetail_server.vue'
 import CourseDetailAndroid from './views/CourseDetail_android.vue'
 import CourseDetailIos from './views/CourseDetail_ios.vue'
 import CourseDetailTest from './views/CourseDetail_test.vue'
+import Login from './components/Login.vue'
 
 const routes = [
-  { path: '/', component: HomePage },
+  { path: '/', component: HomePage, meta: { requiresAuth: true } },
   { path: '/course/1', component: CourseDetailJava },
   { path: '/course/2', component: CourseDetailJs },
   { path: '/course/3', component: CourseDetailTs },
@@ -30,12 +31,27 @@ const routes = [
   { path: '/course/11', component: CourseDetailServer },
   { path: '/course/12', component: CourseDetailAndroid },
   { path: '/course/13', component: CourseDetailIos },
-  { path: '/course/14', component: CourseDetailTest }
+  { path: '/course/14', component: CourseDetailTest },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+
+  if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
 })
 
 export default router

@@ -1,4 +1,8 @@
 <template>
+  <div class="header">
+    <span class="username">{{ employeeName }} 様、<br><br> DXPRO SOLUTIONSの教育コンテンツへようこそ！</span>
+    <button class="logout-button" @click="logout">ログアウト</button>
+  </div>
   <div class="course-container">
     <div class="course-list" v-for="(courseGroup, index) in courseGroups" :key="index">
       <h2>{{ courseGroup.title }}</h2>
@@ -34,12 +38,14 @@ import syoruiImage from '@/assets/syorui.jpg'
 export default defineComponent({
   mounted () {
     window.scrollTo(0, 0)
+    this.employeeName = localStorage.getItem('employeeName') || '不明'
   },
   components: {
     CourseCard
   },
   data () {
     return {
+      employeeName: '',
       courseGroups: [
         {
           title: 'プログラミング',
@@ -82,6 +88,13 @@ export default defineComponent({
         }
       ]
     }
+  },
+  methods: {
+    logout () {
+      localStorage.removeItem('isLoggedIn')
+      localStorage.removeItem('employeeName')
+      this.$router.push({ name: 'Login' })
+    }
   }
 })
 </script>
@@ -114,4 +127,44 @@ export default defineComponent({
   justify-content: center;
   gap: 15px;
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background-color: #f0f4f8; /* Soft background for contrast */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+
+.header:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Shadow on hover */
+}
+
+.username {
+  font-size: 1.25rem; /* Increased font size for emphasis */
+  font-weight: 700; /* Bold font for prominence */
+  color: #495057; /* Darker text for readability */
+  line-height: 1.4; /* Improved line height */
+  margin: 0;
+}
+
+.logout-button {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600; /* Bolder font for the button */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+.logout-button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+  transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
 </style>

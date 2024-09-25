@@ -4,10 +4,11 @@
       <h1>教育コンテンツ</h1>
       <nav>
         <router-link to="/">ホーム画面</router-link>
+        <router-link v-if="!isLoggedIn" to="/login">ログイン</router-link>
       </nav>
     </header>
     <main>
-      <router-view />
+      <router-view @login="handleLogin" @logout="handleLogout" />
     </main>
     <footer>
       <p>© 2024 DXPRO SOLUTION 教育コンテンツ</p>
@@ -16,15 +17,34 @@
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
+
 export default {
-  name: 'App'
+  name: 'App',
+  setup () {
+    const isLoggedIn = ref(false)
+
+    const handleLogin = () => {
+      isLoggedIn.value = true
+    }
+
+    const handleLogout = () => {
+      isLoggedIn.value = false
+    }
+
+    return {
+      isLoggedIn,
+      handleLogin,
+      handleLogout
+    }
+  }
 }
 </script>
 
 <style scoped>
 header {
   background-color: #4CAF50;
-  padding: 10px;
+  padding: 5px;
   text-align: center;
 }
 
