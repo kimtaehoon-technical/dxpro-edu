@@ -7,10 +7,38 @@
       <button>ホーム画面へ</button>
     </router-link>
       <div class="youtube-playlist playlist-1">
-        <h3>１．ANDROIDを始める</h3>
+        <h3>１．設計について</h3>
         <div class="video-thumbnails">
           <div
             v-for="video in playlistVideos"
+            :key="video.id"
+            class="video-thumbnail"
+            @click="openVideo(video.id)"
+          >
+            <img :src="video.thumbnail" alt="Video Thumbnail" />
+            <p>{{ video.title }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="youtube-playlist playlist-2">
+        <h3>２．テストについて</h3>
+        <div class="video-thumbnails">
+          <div
+            v-for="video in playlistVideos2"
+            :key="video.id"
+            class="video-thumbnail"
+            @click="openVideo(video.id)"
+          >
+            <img :src="video.thumbnail" alt="Video Thumbnail" />
+            <p>{{ video.title }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="youtube-playlist playlist-3">
+        <h3>３．要件定義について</h3>
+        <div class="video-thumbnails">
+          <div
+            v-for="video in playlistVideos3"
             :key="video.id"
             class="video-thumbnail"
             @click="openVideo(video.id)"
@@ -47,8 +75,25 @@ export default defineComponent({
       ],
       currentVideoId: '',
       playlistVideos: [
-        { id: 'WTQUj8tXUKU', title: 'Android Studio入門 アプリ開発を始めてみよう【Kotlin プログラミング】', thumbnail: 'https://img.youtube.com/vi/WTQUj8tXUKU/hqdefault.jpg' },
-        { id: 'voenq5EqxxA', title: '【AndroidStudio】初めての簡単アプリ制作(Java編)', thumbnail: 'https://img.youtube.com/vi/voenq5EqxxA/hqdefault.jpg' }
+        {
+          id: 'OXJtc_aBm9M',
+          title: 'システム設計の流れ｜基本設計と詳細設計の違いや、設計書の書き方を解説！設計書テンプレートあり',
+          thumbnail: 'https://img.youtube.com/vi/OXJtc_aBm9M/hqdefault.jpg'
+        }
+      ],
+      playlistVideos2: [
+        {
+          id: 'BYNE0suKDZI',
+          title: 'テスト工程入門！単体テスト・結合テストの違いや仕様書の書き方【テンプレートつき】',
+          thumbnail: 'https://img.youtube.com/vi/BYNE0suKDZI/hqdefault.jpg'
+        }
+      ],
+      playlistVideos3: [
+        {
+          id: '4PASxQjmuvw',
+          title: '要件定義とは？意味や進め方、要件定義書の書き方を解説！【要件定義書のテンプレート付き】',
+          thumbnail: 'https://img.youtube.com/vi/4PASxQjmuvw/hqdefault.jpg'
+        }
       ]
     }
   },
@@ -59,8 +104,8 @@ export default defineComponent({
     return {
       courseDetails: {
         id: courseId,
-        title: 'ANDROIDのベーシック研修',
-        description: 'プログラミングが出来るように、基礎からきちんと学べる入門。',
+        title: 'システム開発の必須知識',
+        description: 'システム開発スムーズに出来るように、基礎からきちんと学べる入門。',
         image: 'course1.jpg'
       }
     }

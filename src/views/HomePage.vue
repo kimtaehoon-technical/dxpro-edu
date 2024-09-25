@@ -29,6 +29,7 @@ import htmlImage from '@/assets/html.jpg'
 import frameworkImage from '@/assets/framework.webp'
 import serverImage from '@/assets/server.png'
 import etcImage from '@/assets/etc.png'
+import syoruiImage from '@/assets/syorui.jpg'
 
 export default defineComponent({
   mounted () {
@@ -69,8 +70,14 @@ export default defineComponent({
         {
           title: 'モバイル',
           courses: [
-            { id: 3, title: 'Android', description: 'Androidのベーシック研修（サンプルアプリ）', image: androidImage },
-            { id: 4, title: 'IOS', description: 'IOSのベーシック研修（サンプルアプリ）', image: iosImage }
+            { id: 12, title: 'Android', description: 'Androidのベーシック研修（サンプルアプリ）', image: androidImage },
+            { id: 13, title: 'IOS', description: 'IOSのベーシック研修（サンプルアプリ）', image: iosImage }
+          ]
+        },
+        {
+          title: '各種業務知識について',
+          courses: [
+            { id: 14, title: '要件定義・設計・テスト', description: '設計とテストについて書き方とやり方を事前に知っておきましょう', image: syoruiImage }
           ]
         }
       ]
