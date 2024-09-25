@@ -14,7 +14,6 @@
       </form>
       <p v-if="error" class="error">{{ error }}</p>
 
-      <!-- 팝업창 -->
       <div v-if="showPopup" class="popup">
         <div class="popup-content">
           <h2>{{ success }}</h2>
@@ -24,9 +23,11 @@
     </div>
   </template>
 
-<script lang="ts">
+<script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { db } from '@/firebase' // Import your firebase config
+import { collection, query, where, getDocs } from 'firebase/firestore'
 
 export default {
   name: 'LoginPage',
@@ -35,28 +36,53 @@ export default {
     const password = ref('')
     const error = ref('')
     const success = ref('')
-    const showPopup = ref(false) // 팝업창 표시 상태
+    const showPopup = ref(false)
     const router = useRouter()
 
-    const users = [
-      { username: 'DXPRO-001', employeename: '金　兌訓', password: 'admin' },
-      { username: 'DXPRO-002', employeename: '崔　炅儁', password: 'dxpro2024' },
-      { username: 'DXPRO-003', employeename: '大友　健人', password: 'dxpro2024' }
-    ]
-
-    const handleLogin = () => {
-      const user = users.find(u => u.username === username.value && u.password === password.value)
-
-      if (user) {
-        success.value = 'ログインに成功しました。'
-        error.value = ''
-        showPopup.value = true
-        localStorage.setItem('isLoggedIn', 'true')
-        localStorage.setItem('employeeName', user.employeename)
-      } else {
-        error.value = 'ユーザー名またはパスワードが間違っています。'
-        success.value = ''
+    const handleLogin = async () => {
+      console.log('Firestore db instance:', db) // This should log the db instance
+      if (!db) {
+        console.error('Firestore db is not initialized')
+        return
       }
+
+      try {
+        const usersCollection = collection(db, 'users')
+        const usersSnapshot = await getDocs(usersCollection)
+        usersSnapshot.forEach(doc => {
+          console.log(doc.id, ' => ', doc.data())
+        })
+      } catch (err) {
+        console.error('Error getting users: ', err)
+      }
+      // 確認要
+      try {
+        const q = query(
+          collection(db, 'users'),
+          where('username', '==', username.value),
+          where('password', '==', password.value)
+        )
+
+        const querySnapshot = await getDocs(q)
+        console.log('Query result:', querySnapshot.docs)
+
+        if (!querySnapshot.empty) {
+          const user = querySnapshot.docs[0].data()
+          success.value = 'ログインに成功しました。'
+          error.value = ''
+          showPopup.value = true
+          localStorage.setItem('isLoggedIn', 'true')
+          localStorage.setItem('employeeName', user.employeename)
+        } else {
+          error.value = 'ユーザー名またはパスワードが間違っています。'
+          success.value = ''
+        }
+      } catch (err) {
+        console.error('Error during login: ', err)
+        error.value = 'ログイン中にエラーが発生しました。'
+      }
+
+      // Your existing login logic follows...
     }
     const goHome = () => {
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
