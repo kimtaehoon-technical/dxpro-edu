@@ -2,7 +2,7 @@
   <div class="course-detail">
     <h2>{{ courseDetails.title }}</h2>
     <p>{{ courseDetails.description }}</p>
-
+    <p :style="{ color: 'red' }">動画プレーヤーの再生領域：動画をクリックすると、画面の下部に動画が表示されます。</p>
     <router-link to="/" class="home-button">
       <button>ホーム画面へ</button>
     </router-link>
