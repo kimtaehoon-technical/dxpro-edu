@@ -1,23 +1,30 @@
 <template>
   <div class="header">
-    <span class="username">{{ employeeName }}&nbsp;&nbsp;&nbsp;様、<br><br> DXPRO SOLUTIONSの教育コンテンツへようこそ！</span>
+    <span class="username">{{ employeeName }}&nbsp;&nbsp;&nbsp;様、<br><br> DXPRO SOLUTIONSの教育コンテンツです。</span>
     <button class="change-password-button" @click="showChangePasswordDialog = true">パスワード変更</button>
     <button class="logout-button" @click="logout">ログアウト</button>
   </div>
-    <!-- Password Change Dialog -->
-    <div v-if="showChangePasswordDialog" class="dialog">
+  <!-- Password Change Dialog -->
+  <div v-if="showChangePasswordDialog" class="dialog">
     <div class="dialog-content">
       <h3>パスワード変更</h3>
-      <label for="currentPassword">現在のパスワード:</label>
-      <input type="password" v-model="currentPassword" id="currentPassword" required />
 
       <label for="newPassword">新しいパスワード:</label>
-      <input type="password" v-model="newPassword" id="newPassword" required />
+      <input type="password" v-model="newPassword" id="newPassword" />
+      <p v-if="newPasswordError" style="color: red;">{{ newPasswordError }}</p>
 
-      <button @click="changePassword">変更する</button>
-      <button @click="showChangePasswordDialog = false">キャンセル</button>
+      <label for="confirmPassword">パスワード再入力:</label>
+      <input type="password" v-model="confirmPassword" id="confirmPassword" />
+      <p v-if="confirmPasswordError" style="color: red;">{{ confirmPasswordError }}</p>
+      <button class="change-button" @click="changePassword">変更する</button>
+      <button class="cancel-button" @click="showChangePasswordDialog = false">キャンセル</button>
     </div>
   </div>
+
+  <div v-if="showSuccessMessage" class="alert-message">
+    パスワードが変更されました。
+  </div>
+
   <div class="course-container">
     <div class="course-list" v-for="(courseGroup, index) in courseGroups" :key="index">
       <h2>{{ courseGroup.title }}</h2>
@@ -34,8 +41,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { getAuth } from 'firebase/auth'
-import { getFirestore, collection, updateDoc, getDoc, doc } from 'firebase/firestore' // Import Firestore functions
+import { getFirestore, doc, updateDoc, getDoc } from 'firebase/firestore'
 import CourseCard from '@/components/CourseCard.vue'
 import javaImage from '@/assets/java.webp'
 import javaScriptImage from '@/assets/javascript.png'
@@ -64,8 +70,11 @@ export default defineComponent({
     return {
       employeeName: '',
       showChangePasswordDialog: false,
-      currentPassword: '',
       newPassword: '',
+      confirmPassword: '',
+      showSuccessMessage: false,
+      newPasswordError: '', // 新しいパスワードのエラーメッセージ
+      confirmPasswordError: '', // 確認パスワードのエラーメッセージ
       courseGroups: [
         {
           title: 'プログラミング',
@@ -110,59 +119,50 @@ export default defineComponent({
     }
   },
   methods: {
+    async changePassword () {
+      this.newPasswordError = ''
+      this.confirmPasswordError = ''
+
+      if (!this.newPassword) {
+        this.newPasswordError = '新しいパスワードを入力してください。'
+        return
+      }
+      if (!this.confirmPassword) {
+        this.confirmPasswordError = '確認パスワードを入力してください。'
+        return
+      }
+
+      if (this.newPassword !== this.confirmPassword) {
+        this.confirmPasswordError = 'パスワードが一致しません。'
+        return
+      }
+
+      const userId = localStorage.getItem('userId') // Get the userId from local storage
+
+      if (!userId) {
+        alert('ユーザーが見つかりません。再度ログインしてください。')
+        return
+      }
+
+      const userDocRef = doc(getFirestore(), 'users', userId)
+
+      try {
+        await updateDoc(userDocRef, { password: this.newPassword })
+        this.showSuccessMessage = true // 成功メッセージを表示
+        this.showChangePasswordDialog = false
+        setTimeout(() => {
+          this.showSuccessMessage = false // 3秒後にメッセージを消す
+        }, 3000)
+      } catch (error) {
+        console.error('Error updating password: ', error)
+        alert('パスワードの変更中にエラーが発生しました。')
+      }
+    },
     logout () {
       localStorage.removeItem('isLoggedIn')
       localStorage.removeItem('employeeName')
       this.$router.push({ name: 'Login' })
-    },
-    async changePassword () {
-      if (this.currentPassword && this.newPassword) {
-        const auth = getAuth() // Initialize Firebase Auth
-        const user = auth.currentUser // Get the current user
-        const userId = user ? user.uid : null // Use the actual user ID
-
-        if (!userId) {
-          alert('ユーザーが見つかりません。')
-          return
-        }
-
-        const db = getFirestore() // Initialize Firestore
-        const userRef = doc(db, 'users', userId) // Access the user document
-
-        // Check if the user document exists
-        const userSnapshot = await getDoc(userRef)
-        if (!userSnapshot.exists()) {
-          alert('ユーザーが見つかりません。パスワードの変更ができません。')
-          return
-        }
-
-        try {
-          await updateDoc(userRef, {
-            password: this.newPassword // Update the password field
-          })
-          alert('パスワードが変更されました。')
-          this.showChangePasswordDialog = false
-          this.currentPassword = ''
-          this.newPassword = ''
-        } catch (error) {
-          console.error('Error updating password:', error)
-          alert('パスワードの変更に失敗しました。')
-        }
-      } else {
-        alert('すべてのフィールドを入力してください。')
-      }
     }
-    // changePassword () {
-    //   if (this.currentPassword && this.newPassword) {
-    //     console.log('既存のパスワード：', this.currentPassword)
-    //     console.log('新しいパスワード：', this.newPassword)
-    //     this.showChangePasswordDialog = false
-    //     this.currentPassword = ''
-    //     this.newPassword = ''
-    //   } else {
-    //     alert('すべてのフィールドを入力してください。')
-    //   }
-    // }
   }
 })
 </script>
@@ -212,11 +212,29 @@ export default defineComponent({
 }
 
 .username {
-  font-size: 1.25rem; /* Increased font size for emphasis */
-  font-weight: 700; /* Bold font for prominence */
-  color: #495057; /* Darker text for readability */
-  line-height: 1.4; /* Improved line height */
-  margin: 0;
+  font-size: 20px; /* Larger font size for better visibility */
+  font-weight: bold; /* Bold text for prominence */
+  color: #343a40; /* Darker color for readability */
+  line-height: 1.4; /* Improved line height for better spacing */
+  background: linear-gradient(90deg, #007bff, #6f42c1); /* Gradient background */
+  -webkit-background-clip: text; /* Clip background to text */
+  -webkit-text-fill-color: transparent; /* Make text color transparent for gradient effect */
+  padding: 10px; /* Padding around the text */
+  border-radius: 5px; /* Rounded corners */
+  text-align: center; /* Centered text */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+  transition: transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.username:hover {
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Optional: Add a before pseudo-element for a decorative touch */
+.username::before {
+  content: "👤 "; /* User icon before the username */
+  font-size: 1.5rem; /* Match icon size with text */
+  vertical-align: middle; /* Align icon with text */
 }
 
 .logout-button {
@@ -242,7 +260,7 @@ export default defineComponent({
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 450px;
+  margin-left: 430px;
   font-weight: 600; /* Bolder font for the button */
   transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
 }
@@ -268,6 +286,9 @@ export default defineComponent({
   background: white;
   padding: 10px 60px 30px;
   border-radius: 10px;
+  width: 400px; /* Fixed width */
+  height: auto; /* Fixed height, adjust as necessary */
+  overflow: auto; /* Add scrollbars if content overflows */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -290,6 +311,55 @@ export default defineComponent({
 
 .dialog-content button {
   margin-right: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.change-button {
+  background-color: #28a745; /* Green for the change button */
+  color: white;
+}
+
+.change-button:hover {
+  background-color: #218838; /* Darker green on hover */
+  transform: translateY(-2px); /* Lift effect on hover */
+}
+
+.cancel-button {
+  background-color: #dc3545; /* Red for cancel button */
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+  transform: translateY(-2px); /* Lift effect on hover */
+}
+
+.alert-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #28a745; /* 成功メッセージの背景色 */
+  color: white;
+  padding: 15px 30px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 1000;
+  animation: fadeOut 3s forwards; /* 自動的に消えるアニメーション */
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @media (max-width: 768px) { /* Adjust this value as needed */
@@ -300,7 +370,8 @@ export default defineComponent({
   }
 
   .username {
-    font-size: 14px; /* Smaller font size */
+    margin-left: 10px;
+    font-size: 15px; /* Smaller font size */
     line-height: 1.2; /* Adjust line height */
   }
 

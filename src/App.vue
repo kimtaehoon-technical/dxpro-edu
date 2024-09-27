@@ -2,9 +2,10 @@
   <div id="app">
     <header>
       <h1>教育コンテンツ</h1>
+      <h3>【社員専用】</h3>
       <nav>
-        <router-link to="/">ホーム画面</router-link>
-        <router-link v-if="!isLoggedIn" to="/login">ログイン</router-link>
+        <a href="https://dxpro-sol.com/" target="_blank" rel="noopener noreferrer">ポータルサイトへ</a>
+        <a href="https://2024073118010411766192.onamaeweb.jp/login" target="_blank" rel="noopener noreferrer">自社AI検索パッケージへ【IT-IS】</a>
       </nav>
     </header>
     <main>
@@ -44,8 +45,39 @@ export default {
 <style scoped>
 header {
   background-color: #4CAF50;
-  padding: 5px;
+  padding: 20px;
   text-align: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #ffffff;
+  margin: 0;
+  font-family: 'Arial', sans-serif; /* Change to a more elegant font if needed */
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin: 10px 0;
+  font-weight: normal; /* Make it less bold for elegance */
+  font-family: 'Arial', sans-serif; /* Change to a more elegant font if needed */
+}
+
+nav {
+  margin-top: 15px;
+}
+
+nav a {
+  margin: 0 15px;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ddd; /* Change color on hover for better UX */
 }
 
 footer {

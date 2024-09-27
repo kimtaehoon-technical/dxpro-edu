@@ -68,11 +68,14 @@ export default {
 
         if (!querySnapshot.empty) {
           const user = querySnapshot.docs[0].data()
+          const userId = querySnapshot.docs[0].id
           success.value = 'ログインに成功しました。'
           error.value = ''
           showPopup.value = true
           localStorage.setItem('isLoggedIn', 'true')
           localStorage.setItem('employeeName', user.employeename)
+          localStorage.setItem('email', user.email)
+          localStorage.setItem('userId', userId)
         } else {
           error.value = 'ユーザー名またはパスワードが間違っています。'
           success.value = ''
